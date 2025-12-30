@@ -287,7 +287,45 @@ class AccountService:
             email=email, name=name, interface_language=interface_language, password=password
         )
 
-        TenantService.create_owner_tenant_if_not_exist(account=account)
+        try:
+            TenantService.create_owner_tenant_if_not_exist(account=account)
+        except WorkSpaceNotAllowedCreateError:
+            # 如果不允许创建工作空间，将新用户加入到主工作空间中
+            try:
+                admin_account = AccountService.get_user_through_email("admin@yck.js")
+                if admin_account:
+                    # 获取admin用户所属的工作空间
+                    admin_tenants = TenantService.get_join_tenants(admin_account)
+                    if admin_tenants:
+                        # 选择第一个工作空间作为主工作空间
+                        main_tenant = admin_tenants[0]
+                        # 将新用户加入到主工作空间
+                        tenant_join = TenantService.create_tenant_member(main_tenant, account, role="normal")
+                        # 设置当前工作空间标志：先将其他工作空间的current设为False
+                        db.session.query(TenantAccountJoin).where(
+                            TenantAccountJoin.account_id == account.id,
+                            TenantAccountJoin.tenant_id != main_tenant.id,
+                        ).update({"current": False})
+                        # 设置当前工作空间的current为True
+                        tenant_join.current = True
+                        # 刷新session以确保TenantAccountJoin记录已提交
+                        db.session.flush()
+                        # 设置当前工作空间（使用set_tenant_id方法，它会创建新session查询）
+                        account.set_tenant_id(main_tenant.id)
+                        db.session.commit()
+                    else:
+                        # admin账号没有工作空间，抛出错误
+                        raise AccountRegisterError("Default workspace not found. Please contact administrator.")
+                else:
+                    # admin账号不存在，抛出错误
+                    raise AccountRegisterError("Default workspace not found. Please contact administrator.")
+            except AccountRegisterError:
+                # 重新抛出 AccountRegisterError
+                raise
+            except Exception as e:
+                # 其他异常（如 Unauthorized）也转换为 AccountRegisterError
+                logger.exception("Failed to join default workspace: %s", e)
+                raise AccountRegisterError("Failed to join default workspace. Please contact administrator.") from e
 
         return account
 
@@ -1334,6 +1372,43 @@ class RegisterService:
                 TenantService.create_tenant_member(tenant, account, role="owner")
                 account.current_tenant = tenant
                 tenant_was_created.send(tenant)
+            else:
+                # 如果不允许创建工作空间，将新用户加入到主工作空间中
+                try:
+                    admin_account = AccountService.get_user_through_email("admin@yck.js")
+                    if admin_account:
+                        # 获取admin用户所属的工作空间
+                        admin_tenants = TenantService.get_join_tenants(admin_account)
+                        if admin_tenants:
+                            # 选择第一个工作空间作为主工作空间
+                            main_tenant = admin_tenants[0]
+                            # 将新用户加入到主工作空间
+                            tenant_join = TenantService.create_tenant_member(main_tenant, account, role="normal")
+                            # 设置当前工作空间标志：先将其他工作空间的current设为False
+                            db.session.query(TenantAccountJoin).where(
+                                TenantAccountJoin.account_id == account.id,
+                                TenantAccountJoin.tenant_id != main_tenant.id,
+                            ).update({"current": False})
+                            # 设置当前工作空间的current为True
+                            tenant_join.current = True
+                            # 刷新session以确保TenantAccountJoin记录已提交
+                            db.session.flush()
+                            # 设置当前工作空间（使用set_tenant_id方法，它会创建新session查询）
+                            account.set_tenant_id(main_tenant.id)
+                        else:
+                            # admin账号没有工作空间，抛出错误
+                            raise AccountRegisterError("Default workspace not found. Please contact administrator.")
+                    else:
+                        # admin账号不存在，抛出错误
+                        raise AccountRegisterError("Default workspace not found. Please contact administrator.")
+                except AccountRegisterError:
+                    # 重新抛出 AccountRegisterError
+                    raise
+                except Exception as e:
+                    # 其他异常（如 Unauthorized）也转换为 AccountRegisterError
+                    logger.exception("Failed to join default workspace: %s", e)
+                    raise AccountRegisterError("Failed to join default workspace. Please contact administrator.") from e
+
 
             db.session.commit()
         except WorkSpaceNotAllowedCreateError:
