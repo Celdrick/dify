@@ -701,7 +701,7 @@ services:
 
   # API service
   api:
-    image: celdrick/dify-api:1.11.2
+    image: celdrick/dify-api:main
     restart: always
     environment:
       # Use the shared environment variables.
@@ -744,7 +744,7 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: celdrick/dify-api:1.11.2
+    image: celdrick/dify-api:main
     restart: always
     environment:
       # Use the shared environment variables.
@@ -784,7 +784,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: celdrick/dify-api:1.11.2
+    image: celdrick/dify-api:main
     restart: always
     environment:
       # Use the shared environment variables.
@@ -814,7 +814,7 @@ services:
 
   # Frontend web application.
   web:
-    image: celdrick/dify-web:1.11.2
+    image: celdrick/dify-web:main
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -928,7 +928,7 @@ services:
 
   # The DifySandbox
   sandbox:
-    image: celdrick/dify-sandbox:full-amd64
+    image: celdrick/dify-sandbox:main-amd64
     restart: always
     environment:
       # The DifySandbox configurations
