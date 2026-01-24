@@ -1210,7 +1210,7 @@ services:
   # Qdrant vector store.
   # (if used, you need to set VECTOR_STORE to qdrant in the api & worker service.)
   qdrant:
-    image: celdrick/qdrant:v1.8.3
+    image: langgenius/qdrant:v1.8.3
     profiles:
       - qdrant
     restart: always
