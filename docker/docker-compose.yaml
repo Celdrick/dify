@@ -962,7 +962,7 @@ services:
 
   # plugin daemon
   plugin_daemon:
-    image: celdrick/dify-plugin-daemon:0.5.2-local
+    image: langgenius/dify-plugin-daemon:0.5.2-local
     restart: always
     environment:
       # Use the shared environment variables.
