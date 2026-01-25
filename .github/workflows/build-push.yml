@@ -104,9 +104,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - service_name: "merge-api-images"
-            image_name_env: "DIFY_API_IMAGE_NAME"
-            context: "api"
+          # - service_name: "merge-api-images"
+          #   image_name_env: "DIFY_API_IMAGE_NAME"
+          #   context: "api"
           - service_name: "merge-web-images"
             image_name_env: "DIFY_WEB_IMAGE_NAME"
             context: "web"
