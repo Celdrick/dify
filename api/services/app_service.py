@@ -39,7 +39,7 @@ class AppService:
         :param args: request args
         :return:
         """
-        filters = [App.tenant_id == tenant_id, App.is_universal == False]
+        filters = [App.tenant_id == tenant_id, App.is_universal == False, App.created_by == user_id]
 
         if args["mode"] == "workflow":
             filters.append(App.mode == AppMode.WORKFLOW)
