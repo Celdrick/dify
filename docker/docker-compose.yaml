@@ -942,7 +942,7 @@ services:
 
   # The DifySandbox
   sandbox:
-    image: langgenius/dify-sandbox:0.2.12
+    image: celdrick/dify-sandbox:main-amd64
     restart: always
     environment:
       # The DifySandbox configurations
