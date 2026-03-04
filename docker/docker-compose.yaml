@@ -968,7 +968,7 @@ services:
 
   # plugin daemon
   plugin_daemon:
-    image: celdrick/dify-sandbox:main-amd64
+    image: langgenius/dify-plugin-daemon:0.5.3-local
     restart: always
     environment:
       # Use the shared environment variables.
