@@ -25,6 +25,7 @@ python_lib_path: # 重要 python 依赖所在安装路径
   - "/opt/python-3.14.3/lib/python3.14/site-packages/pandas"
 enable_network: True # please make sure there is no network risk in your environment
 enable_preload: False # please keep it as False for security purposes
+nodejs_path: /opt/node-v20.20.0-linux-x64/
 allowed_syscalls: # please leave it empty if you have no idea how seccomp works
 proxy:
   socks5: ''
